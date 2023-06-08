@@ -15,15 +15,14 @@ public class ConsoleProgress implements Runnable {
     public void run() {
         var progress = new char[]{'-', '\\', '|', '/'};
         int index = 0;
-
-        try {
-            while (!Thread.currentThread().isInterrupted()) {
-                System.out.print("\r load: " + progress[index]);
+        while (!Thread.currentThread().isInterrupted()) {
+            System.out.print("\r load: " + progress[index]);
+            index = index == progress.length - 1 ? 0 : index + 1;
+            try {
                 Thread.sleep(500);
-                index = index == progress.length - 1 ? 0 : index + 1;
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
-        } catch (InterruptedException e) {
-            System.err.println(SEPARATOR + "Дочерний поток прерван.");
         }
     }
 }

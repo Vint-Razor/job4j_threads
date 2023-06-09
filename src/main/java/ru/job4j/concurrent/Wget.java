@@ -1,20 +1,25 @@
 package ru.job4j.concurrent;
 
-public class Wget {
+public class Wget implements Runnable {
 
-    public static void main(String[] args) {
-        Thread thread = new Thread(
-                () -> {
-                    for (int index = 0; index <= 100; index++) {
-                        System.out.print("\rLoading : " + index + "%");
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-        );
-        thread.start();
+    private final String url;
+    private final int speed;
+
+    public Wget(String url, int speed) {
+        this.url = url;
+        this.speed = speed;
+    }
+
+    @Override
+    public void run() {
+        //TODO реализация
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        String url = args[0];
+        int speed = Integer.parseInt(args[1]);
+        Thread wget = new Thread(new Wget(url, speed));
+        wget.start();
+        wget.join();
     }
 }

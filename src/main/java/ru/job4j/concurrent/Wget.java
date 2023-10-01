@@ -7,7 +7,6 @@
 
 package ru.job4j.concurrent;
 
-import java.io.BufferedInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -18,7 +17,6 @@ import java.net.URL;
 import java.nio.file.Paths;
 
 public class Wget implements Runnable {
-    private static final long SEC = 1000L;
     private final String url;
     private final int speed;
 
@@ -40,25 +38,23 @@ public class Wget implements Runnable {
     @Override
     public void run() {
         String file = String.format("tmp_%s", getFileName(url));
-        System.out.println(file);
-        try (BufferedInputStream in = new BufferedInputStream(new URL(url).openStream());
-             FileOutputStream fileOutputStream = new FileOutputStream(file)) {
-            byte[] dataBuffer = new byte[speed];
+        try (var in = new URL(url).openStream();
+             var fileOutputStream = new FileOutputStream(file)) {
+            byte[] dateBuffer = new byte[speed];
             int byteRead;
-            long start;
-            long end;
-            while ((byteRead = in.read(dataBuffer, 0, speed)) != -1) {
-                start = System.nanoTime();
-                end = System.nanoTime();
-                long difference = end - start;
-                if (difference < SEC) {
+            while ((byteRead = in.read(dateBuffer, 0, speed)) != -1) {
+                var downloadAt = System.nanoTime();
+                fileOutputStream.write(dateBuffer, 0, byteRead);
+                long downloadNanoSec = System.nanoTime() - downloadAt;
+                double bytePerMilSec = speed / (double) downloadNanoSec * 1_000_000;
+                int sleepTime = (int) bytePerMilSec / speed;
+                if (sleepTime > 0) {
                     try {
-                        Thread.sleep(difference);
+                        Thread.sleep(sleepTime);
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
                     }
                 }
-                fileOutputStream.write(dataBuffer, 0, byteRead);
             }
         } catch (MalformedURLException e) {
             throw new IllegalArgumentException(String.format("не правильный формат url-адреса %s", url));
@@ -70,11 +66,10 @@ public class Wget implements Runnable {
     }
 
     private static void validator(String[] args) {
-        if (args[0].isBlank()) {
-            throw new IllegalArgumentException("URL-адрес не задан");
-        }
-        if (args[1].isBlank()) {
-            throw new IllegalArgumentException("не задана скорость скачивания");
+        if (args.length < 2) {
+            throw new IllegalArgumentException("аргументы программы не найденны."
+                    + " Задайте два аргумента, адрес файла в сети и скорость скачивания."
+                    + " Например: www.web.com/file.txt 1000");
         }
     }
 

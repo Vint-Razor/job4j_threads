@@ -17,6 +17,7 @@ import java.net.URL;
 import java.nio.file.Paths;
 
 public class Wget implements Runnable {
+    private static final long SEC = 1000L;
     private final String url;
     private final int speed;
 
@@ -42,19 +43,23 @@ public class Wget implements Runnable {
              var fileOutputStream = new FileOutputStream(file)) {
             byte[] dateBuffer = new byte[speed];
             int byteRead;
+            int byteCount = 0;
+            var startAt = System.currentTimeMillis();
             while ((byteRead = in.read(dateBuffer, 0, speed)) != -1) {
-                var downloadAt = System.nanoTime();
                 fileOutputStream.write(dateBuffer, 0, byteRead);
-                long downloadNanoSec = System.nanoTime() - downloadAt;
-                double bytePerMilSec = speed / (double) downloadNanoSec * 1_000_000;
-                int sleepTime = (int) bytePerMilSec / speed;
-                if (sleepTime > 0) {
+                var downloadTime = System.currentTimeMillis() - startAt;
+                byteCount += byteRead;
+                if (byteCount >= speed) {
+                    var sleepTime = downloadTime < SEC ? SEC - downloadTime : 0;
                     try {
                         Thread.sleep(sleepTime);
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
                     }
+                    startAt = System.currentTimeMillis();
+                    byteCount = 0;
                 }
+
             }
         } catch (MalformedURLException e) {
             throw new IllegalArgumentException(String.format("не правильный формат url-адреса %s", url));

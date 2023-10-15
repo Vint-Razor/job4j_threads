@@ -16,7 +16,7 @@ public class ParseFile implements Parser {
         int data;
         try (InputStream in = new FileInputStream(file);
              BufferedInputStream buffer = new BufferedInputStream(in)) {
-            while ((data = buffer.read()) > 0) {
+            while ((data = buffer.read()) != -1) {
                 if (filter.test((char) data)) {
                     sb.append((char) data);
                 }

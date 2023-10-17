@@ -17,44 +17,27 @@ public class AccountStorage {
     }
 
     public synchronized boolean update(Account account) {
-        boolean isUpdate = false;
-        if (accounts.containsKey(account.id())) {
-            accounts.remove(account.id());
-            isUpdate = add(account);
-        }
-        return isUpdate;
+        return accounts.replace(account.id(), account) != null;
     }
 
     public synchronized void delete(int id) {
-        validateId(id);
         accounts.remove(id);
     }
 
     public synchronized Optional<Account> getById(int id) {
-        Account account = accounts.get(id);
-        if (account != null) {
-            account = new Account(account.id(), account.amount());
-        }
-        return Optional.ofNullable(account);
+        return Optional.ofNullable(accounts.get(id));
     }
 
     public synchronized boolean transfer(int fromId, int toId, int amount) {
         boolean wasTransmitted = false;
-        validateId(fromId);
-        validateId(toId);
-        var fromAccount = accounts.get(fromId);
-        var toAccount = accounts.get(toId);
-        if (!fromAccount.equals(toAccount) && fromAccount.amount() >= amount) {
-            int fromAmount = fromAccount.amount() - amount;
-            int toAmount = toAccount.amount() + amount;
+        Optional<Account> fromAccount = getById(fromId);
+        Optional<Account> toAccount = getById(toId);
+        if (fromAccount.isPresent() && toAccount.isPresent()
+                && !fromAccount.get().equals(toAccount.get()) && fromAccount.get().amount() >= amount) {
+            int fromAmount = fromAccount.get().amount() - amount;
+            int toAmount = toAccount.get().amount() + amount;
             wasTransmitted = update(new Account(fromId, fromAmount)) && update(new Account(toId, toAmount));
         }
         return wasTransmitted;
-    }
-
-    private synchronized void validateId(int id) {
-        if (accounts.get(id) == null) {
-            throw new IllegalArgumentException(String.format("Not found account by id = %d", id));
-        }
     }
 }

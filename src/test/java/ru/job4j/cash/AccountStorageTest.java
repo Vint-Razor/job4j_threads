@@ -35,7 +35,6 @@ class AccountStorageTest {
         storage.add(new Account(1, 100));
         storage.delete(1);
         assertThat(storage.getById(1)).isEmpty();
-        assertThatThrownBy(() -> storage.delete(2)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -52,7 +51,5 @@ class AccountStorageTest {
         assertThat(secondAccount.amount()).isEqualTo(200);
         assertThat(storage.transfer(1, 2, 100)).isFalse();
         assertThat(storage.transfer(2, 1, 100)).isTrue();
-        assertThatThrownBy(() -> storage.transfer(1, 3, 100))
-                .isInstanceOf(IllegalArgumentException.class);
     }
 }

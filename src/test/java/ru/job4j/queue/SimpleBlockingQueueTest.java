@@ -11,7 +11,8 @@ class SimpleBlockingQueueTest {
 
     @Test
     void whenOfferThenPoll() throws InterruptedException {
-        SimpleBlockingQueue<Integer> blockingQueue = new SimpleBlockingQueue<>();
+        int sizeLimit = 3;
+        SimpleBlockingQueue<Integer> blockingQueue = new SimpleBlockingQueue<>(sizeLimit);
         List<Integer> actualList = List.of(1, 2, 3);
         List<Integer> expectedList = new ArrayList<>();
         Thread producer = new Thread(

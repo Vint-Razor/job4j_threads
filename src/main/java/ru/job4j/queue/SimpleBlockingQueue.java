@@ -8,12 +8,16 @@ import java.util.Queue;
 
 @ThreadSafe
 public class SimpleBlockingQueue<T> {
-
     @GuardedBy("this")
     private final Queue<T> queue = new LinkedList<>();
+    private final int limit;
+
+    public SimpleBlockingQueue(int limit) {
+        this.limit = limit;
+    }
 
     public synchronized void offer(T value) throws InterruptedException {
-        while (!queueIsEmpty()) {
+        while (queue.size() >= limit) {
             this.wait();
         }
         queue.add(value);
@@ -24,8 +28,9 @@ public class SimpleBlockingQueue<T> {
         while (queueIsEmpty()) {
             this.wait();
         }
+        T result = queue.poll();
         this.notifyAll();
-        return queue.poll();
+        return result;
     }
 
     private synchronized boolean queueIsEmpty() {
@@ -33,11 +38,12 @@ public class SimpleBlockingQueue<T> {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        SimpleBlockingQueue<Integer> blockingQueue = new SimpleBlockingQueue<>();
+        SimpleBlockingQueue<Integer> blockingQueue = new SimpleBlockingQueue<>(3);
         Thread consumer = new Thread(
                 () -> {
                     for (int i = 0; i < 10; i++) {
                         try {
+                            Thread.sleep(1000);
                             System.out.printf("poll %d\n", blockingQueue.poll());
                         } catch (InterruptedException e) {
                             Thread.currentThread().interrupt();
@@ -51,6 +57,7 @@ public class SimpleBlockingQueue<T> {
                     for (int i = 0; i < 10; i++) {
                         try {
                             blockingQueue.offer(i);
+                            Thread.sleep(100);
                             System.out.printf("offer %d\n", i);
                         } catch (InterruptedException e) {
                             Thread.currentThread().interrupt();

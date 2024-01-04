@@ -18,57 +18,22 @@ public class SimpleBlockingQueue<T> {
 
     public synchronized void offer(T value) throws InterruptedException {
         while (queue.size() >= limit) {
-            this.wait();
+            wait();
         }
-        queue.add(value);
-        this.notifyAll();
+        queue.offer(value);
+        notifyAll();
     }
 
     public synchronized T poll() throws InterruptedException {
-        while (queueIsEmpty()) {
-            this.wait();
+        while (queue.isEmpty()) {
+            wait();
         }
         T result = queue.poll();
-        this.notifyAll();
+        notifyAll();
         return result;
     }
 
-    private synchronized boolean queueIsEmpty() {
+    public synchronized boolean isEmpty() {
         return queue.isEmpty();
-    }
-
-    public static void main(String[] args) throws InterruptedException {
-        SimpleBlockingQueue<Integer> blockingQueue = new SimpleBlockingQueue<>(3);
-        Thread consumer = new Thread(
-                () -> {
-                    for (int i = 0; i < 10; i++) {
-                        try {
-                            Thread.sleep(1000);
-                            System.out.printf("poll %d\n", blockingQueue.poll());
-                        } catch (InterruptedException e) {
-                            Thread.currentThread().interrupt();
-                        }
-                    }
-                },
-                "consumer"
-        );
-        Thread producer = new Thread(
-                () -> {
-                    for (int i = 0; i < 10; i++) {
-                        try {
-                            blockingQueue.offer(i);
-                            Thread.sleep(100);
-                            System.out.printf("offer %d\n", i);
-                        } catch (InterruptedException e) {
-                            Thread.currentThread().interrupt();
-                        }
-                    }
-                },
-                "producer"
-        );
-        consumer.start();
-        producer.start();
-        consumer.join();
-        producer.join();
     }
 }

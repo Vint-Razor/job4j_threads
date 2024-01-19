@@ -10,10 +10,9 @@ import java.util.List;
  * Клиент берет ресурс из пула, выполняет свою работу и возвращает обратно в пул.
  */
 public class ThreadPool {
-    private static final int QUEUE_LIMIT = 3;
     private final int size = Runtime.getRuntime().availableProcessors();
     private final List<Thread> threads = new LinkedList<>();
-    private final SimpleBlockingQueue<Runnable> tasks = new SimpleBlockingQueue<>(QUEUE_LIMIT);
+    private final SimpleBlockingQueue<Runnable> tasks = new SimpleBlockingQueue<>(size);
 
     public ThreadPool() {
         fillListThreads(size);

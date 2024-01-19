@@ -39,7 +39,9 @@ public class ThreadPool {
                     () -> {
                         while (!Thread.currentThread().isInterrupted()) {
                             try {
-                                tasks.poll();
+                                Runnable task = tasks.poll();
+                                task.run();
+                                work(task);
                             } catch (InterruptedException e) {
                                 Thread.currentThread().interrupt();
                             }
@@ -48,5 +50,28 @@ public class ThreadPool {
             ));
         }
         threads.forEach(Thread::start);
+    }
+
+    public void threadsStatus() {
+        threads.forEach((thread) -> System.out.println(thread.getState()));
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        Runnable first = () -> System.out.println("first");
+        Runnable second = () -> System.out.println("second");
+        Runnable third = () -> System.out.println("third");
+        Runnable four = () -> System.out.println("four");
+        Runnable five = () -> System.out.println("five");
+        ThreadPool pool = new ThreadPool();
+        pool.work(first);
+        pool.work(second);
+        pool.work(third);
+        pool.work(four);
+        pool.work(five);
+        pool.threadsStatus();
+        Thread.sleep(10);
+        pool.shutdown();
+        Thread.sleep(100);
+        pool.threadsStatus();
     }
 }

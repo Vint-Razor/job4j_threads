@@ -39,9 +39,7 @@ public class ThreadPool {
                     () -> {
                         while (!Thread.currentThread().isInterrupted()) {
                             try {
-                                Runnable task = tasks.poll();
-                                task.run();
-                                work(task);
+                                tasks.poll().run();
                             } catch (InterruptedException e) {
                                 Thread.currentThread().interrupt();
                             }

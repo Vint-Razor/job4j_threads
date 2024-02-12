@@ -1,4 +1,4 @@
-package ru.job4j.polls;
+package ru.job4j.pools;
 
 import org.junit.jupiter.api.Test;
 

@@ -1,4 +1,4 @@
-package ru.job4j.polls;
+package ru.job4j.pools;
 
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveTask;

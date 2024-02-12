@@ -5,7 +5,7 @@
  * Column - колонка
  * */
 
-package ru.job4j.polls;
+package ru.job4j.pools;
 
 import java.util.Arrays;
 import java.util.HashMap;

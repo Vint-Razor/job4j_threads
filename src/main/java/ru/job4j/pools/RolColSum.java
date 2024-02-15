@@ -6,9 +6,6 @@ import java.util.concurrent.ExecutionException;
 
 public class RolColSum {
 
-    public record Sums(int rowSum, int colSum) {
-    }
-
     private static Sums serialSum(int index, int[][] matrix) {
         int rowSum = 0;
         int colSum = 0;
@@ -28,15 +25,11 @@ public class RolColSum {
         return arrSums;
     }
 
-    public static Sums[] asyncSum(int[][] matrix) {
+    public static Sums[] asyncSum(int[][] matrix) throws ExecutionException, InterruptedException {
         int size = matrix.length;
         Sums[] arrSums = new Sums[size];
         for (int i = 0; i < size; i++) {
-            try {
-                arrSums[i] = Objects.requireNonNull(getTask(i, matrix)).get();
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
+            arrSums[i] = Objects.requireNonNull(getTask(i, matrix)).get();
         }
         return arrSums;
     }
@@ -55,12 +48,17 @@ public class RolColSum {
         Sums[] sums = sum(matrix);
         System.out.println("Serial");
         for (Sums sum : sums) {
-            System.out.printf("row: %d\t col: %d%s", sum.rowSum, sum.colSum, ln);
+            System.out.printf("row: %d\t col: %d%s", sum.rowSum(), sum.colSum(), ln);
         }
-        Sums[] asyncSum = asyncSum(matrix);
+        Sums[] asyncSum = new Sums[0];
+        try {
+            asyncSum = asyncSum(matrix);
+        } catch (ExecutionException | InterruptedException e) {
+            e.printStackTrace();
+        }
         System.out.println("Async");
         for (Sums sums1 : asyncSum) {
-            System.out.printf("row: %d\t col: %d%s", sums1.rowSum, sums1.colSum, ln);
+            System.out.printf("row: %d\t col: %d%s", sums1.rowSum(), sums1.colSum(), ln);
         }
     }
 }
